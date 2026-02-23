@@ -128,6 +128,8 @@ GitHub web URLs are automatically converted to raw URLs.
 
 ## Command-Line Options
 
+All units are mm.
+
 ```
 usage: framer [-h] [-o OUTPUT] [-t THICKNESS] [-m MARGIN] [-p [PEGS]]
               [-b] [--lip-height LIP_HEIGHT] [--base-thickness BASE_THICKNESS]
