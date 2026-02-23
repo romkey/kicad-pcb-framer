@@ -1,0 +1,32 @@
+services:
+  test:
+    build: .
+    volumes:
+      - .:/app
+    command: sh -c "pip install -e .[dev] && pytest -v"
+
+  ci:
+    build: .
+    volumes:
+      - .:/app
+    command: >
+      sh -c "
+        pip install -e .[dev] &&
+        echo '=== Running Tests ===' &&
+        pytest -v &&
+        echo '=== Checking Black Formatting ===' &&
+        black --check src tests &&
+        echo '=== Checking isort ===' &&
+        isort --check src tests &&
+        echo '=== Running Flake8 ===' &&
+        flake8 src tests &&
+        echo '=== Running MyPy ===' &&
+        mypy src/framer &&
+        echo '=== All CI Checks Passed! ==='
+      "
+
+  format:
+    build: .
+    volumes:
+      - .:/app
+    command: sh -c "pip install -e .[dev] && black src tests && isort src tests"

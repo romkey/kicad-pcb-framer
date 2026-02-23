@@ -403,7 +403,12 @@ class Framer:
 
     def get_dimensions(self) -> Tuple[float, float]:
         """Return the PCB dimensions as (width, height)"""
-        if any(v is None for v in [self.min_x, self.max_x, self.min_y, self.max_y]):
+        if (
+            self.min_x is None
+            or self.max_x is None
+            or self.min_y is None
+            or self.max_y is None
+        ):
             raise ValueError("PCB dimensions could not be determined from edge cuts")
         width = self.max_x - self.min_x
         height = self.max_y - self.min_y
@@ -690,7 +695,7 @@ module {module_name}() {{
 
         scad_code += f"""
         }}
-        
+
         // Interior cutout
         translate([{margin + min_peg_spacing}, {margin + min_peg_spacing}, -1]) {{
             cube([{frame_width - (2 * (margin + min_peg_spacing))}, {frame_height - (2 * (margin + min_peg_spacing))}, {module_name}_frame_thickness + 2]);
@@ -730,15 +735,15 @@ module {module_name}() {{
 module {module_name}_base() {{
     wall_thickness = {wall_thickness:.2f};
     notch_width = {notch_width:.2f};  // Gap between walls = frame thickness + clearance
-    
+
     // Base plate
     cube([{base_dims['width']:.2f}, {base_dims['depth']:.2f}, {base_thickness:.2f}]);
-    
+
     // Two parallel walls with a gap (notch) between them for the frame to slot into
     // First wall
     translate([0, 0, {base_thickness:.2f}])
         cube([{base_dims['width']:.2f}, wall_thickness, {wall_height:.2f}]);
-    
+
     // Second wall (with notch_width gap from first wall)
     translate([0, wall_thickness + notch_width, {base_thickness:.2f}])
         cube([{base_dims['width']:.2f}, wall_thickness, {wall_height:.2f}]);
@@ -750,13 +755,13 @@ module {module_name}_base_angled() {{
     notch_width = {notch_width:.2f};
     angle = 15;
     wall_height = {wall_height:.2f};
-    
+
     // Calculate how far the top of the wall moves back when angled
     lean_back = wall_height * sin(angle);
-    
+
     // Base plate
     cube([{base_dims['width']:.2f}, {base_dims['depth']:.2f}, {base_thickness:.2f}]);
-    
+
     // Two parallel angled walls with a gap (notch) between them
     // Using hull() to create solid wedge shapes that sit flat on base
     translate([0, 0, {base_thickness:.2f}]) {{
@@ -768,7 +773,7 @@ module {module_name}_base_angled() {{
             translate([0, lean_back, wall_height - 0.01])
                 cube([{base_dims['width']:.2f}, wall_thickness, 0.01]);
         }}
-        
+
         // Second wall - same angle, with notch gap
         translate([0, wall_thickness + notch_width, 0]) {{
             hull() {{
@@ -795,11 +800,11 @@ if (create_default) {{
 
     if generate_base:
         base_dims = calculate_base_dimensions(pcb_width, pcb_height, holes, margin)
-        scad_code += f"""    
+        scad_code += f"""
     // Base positioned next to frame for printing
     translate([{frame_width + 5:.2f}, 0, 0])
         {module_name}_base();
-    
+
     // Angled base positioned next to regular base
     translate([{frame_width + base_dims['width'] + 10:.2f}, 0, 0])
         {module_name}_base_angled();
