@@ -28,11 +28,11 @@ jobs:
         pytest
     - name: Check formatting
       run: |
-        black --check .
-        isort --check .
+        black --check src tests
+        isort --check src tests
     - name: Lint
       run: |
-        flake8 .
+        flake8 src tests
     - name: Type check
       run: |
         mypy src/framer

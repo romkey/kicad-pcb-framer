@@ -1,1 +1,1 @@
-"""Test suite for the framer package.""" 
+"""Test suite for the framer package."""
